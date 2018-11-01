@@ -1,2 +1,3 @@
 # bimm143_dq
-Class repo for BIMM 143 class Fall '18
+Class repository for BIMM 143(Introducitonto Bioinformatics) Fall '18 at UCSD
+
