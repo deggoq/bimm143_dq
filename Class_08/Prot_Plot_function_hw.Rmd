@@ -1,0 +1,46 @@
+---
+title: "Prot_plot_HW"
+author: "Diego Quintero (A14720840)"
+output:
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+#Load the package containing functions needed
+library(bio3d)
+```
+
+##Function to plot protein given a user-inputed protein name
+
+```{r}
+prot_plot <- function(prot_name){
+  
+  #Reads in user-inputed  protein name from database
+  prot1 <- read.pdb(prot_name)
+  
+  #creates subset of atoms, containing just the A chain of 
+  prot1.chainA <- trim.pdb(prot1, chain = "A", elety = "CA")
+  
+  #Select subset of atoms to compare
+  prot1.b <- prot1.chainA$atom$b
+  
+  ##Outputs the line plot for effect of drug binding
+  #Graph compares Bfactor and Residue
+  plotb3(prot1.b, sse = prot1.chainA, typ ="l", ylab = "Bfactor")
+}
+```
+
+##Call prot_plot() function on protein "4AKE"
+
+
+```{r}
+prot_plot("4AKE")
+```
+
+
+
