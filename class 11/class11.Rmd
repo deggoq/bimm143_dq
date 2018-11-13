@@ -1,0 +1,135 @@
+---
+title: "Stuctural Bioinformatics Class 11"
+author: Diego Quintero
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## PDB database composition statistics
+
+Download PDB stats as a CSV file from: http://www.rcsb.org/stats/summary
+
+```{r}
+pdbstats <- read.csv("Data Export Summary.csv", row.names =1)
+```
+Let's look at table
+
+```{r}
+library(knitr)
+kable(pdbstats)
+```
+Total number of structures 
+
+```{r}
+#total number of entries
+nstru <- sum(pdbstats[,5])
+
+#percentage of X-Ray structures
+perXray <- pdbstats["X-Ray", "Total"]/nstru
+perXray <- round(perXray*100,2)
+
+#percentage of Electron Microscopy
+perElecMic <- pdbstats["Electron Microscopy","Total"]/nstru
+perElecMic <- round(perElecMic*100,2)
+```
+
+A1. There are `r perXray`% X-ray structures and `r perElecMic `% Electorn Microsopy structures in the PDB database as of `r Sys.time() `
+
+
+Calculating the percentage of proteins
+```{r}
+numProt <- sum(pdbstats$Proteins)/nstru
+
+numProt <- round(numProt*100,2)
+
+```
+Total percent of Proteins is `r numProt `%
+
+## Introduction to Bio3D
+
+Loading #Bio3d# library
+```{r}
+library(bio3d)
+```
+
+```{r}
+pdb <- read.pdb("1hsg")
+pdb
+```
+Note that the attribute (+attr) of this object are listed on the last couple of lines. To find the attributes of any such object you can use:
+
+```{r}
+attributes(pdb)
+```
+
+We can access each comonent with the dollar syntac. For Example:
+```{r}
+head(pdb)
+```
+
+```{r}
+pdb$xyz
+```
+
+Plot of B-factor column... **GOT AN ERROR:( **
+```{r}
+#plot.bio3d(pdb$atom$b[pdb$calpha], sse=pdb, typ="l", ylab=“B-factor”)
+```
+
+
+##Atom Selection
+
+We need to be able to get at select parts ofprotein structures (e.g just the ligand, just the protein, or just the chain A, etc.). For this we use the **atom.select()** function.
+
+
+```{r}
+ca.inds <- atom.select(pdb, "calpha")
+
+head(pdb$atom[ca.inds$atom,])
+```
+
+
+
+```{r}
+#Download some example PDB files
+ids = c("1TND_B", "1AGR_A", "1TAG_A", "1GG2_A","1KJY_A", "4G5Q_A")
+
+files <- get.pdb(ids, split = TRUE)
+```
+
+```{r}
+# Extract and align the chains we are interested in
+pdbs <- pdbaln(files, fit = TRUE)
+# Print to screen a summary of the 'pdbs' object
+pdbs
+```
+```{r}
+# Access the first 5 rows, and 8 columns
+pdbs$ali[1:5, 1:8]
+
+
+# Associated residues numbers
+pdbs$resno[1:5, 1:8]
+
+```
+
+```{r}
+# find invariant core
+core <- core.find(pdbs)
+# superimpose all structures to core
+pdbs$xyz = pdbfit(pdbs, core)
+# Perform PCA
+pc.xray <- pca(pdbs)
+
+# Calculate RMSD
+rd <- rmsd(pdbs)
+# Structure-based clustering
+hc.rd <- hclust(dist(rd))
+grps.rd <- cutree(hc.rd, k=3)
+plot(pc.xray, 1:2, col="grey50", bg=grps.rd, pch=21, cex=1)
+
+```
+
