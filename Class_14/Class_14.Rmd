@@ -29,3 +29,28 @@ prop_AA <- round(prop_AA,2)
 ```
 
 There are `r prop_AA`% "A|A" genotypes out of `r TotalGenotypes` 
+
+##Section 2
+
+```{r}
+library(seqinr)
+library(gtools)
+phred <- asc( s2c("DDDDCDEDCDDDDBBDDDCC@") ) - 33
+phred 
+```
+
+```{r}
+newFile <- read.table("rs8067378_ENSG00000172057.6.txt")
+
+justAA <- newFile$geno == "A/A"
+justAG <- newFile$geno == "A/G"
+justGG <- newFile$geno == "G/G"
+
+
+sumAA <- summary(newFile$exp[justAA])
+sumAG <- summary(newFile$exp[justAG])
+sumGG <- summary(newFile$exp[justGG])
+
+boxplot(exp ~ geno,data = newFile)
+```
+
